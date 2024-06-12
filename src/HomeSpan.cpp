@@ -45,6 +45,8 @@ const __attribute__((section(".rodata_custom_desc"))) SpanPartition spanPartitio
 
 using namespace Utils;
 
+#define PARTS_CLEANER_HOMEKIT 1
+
 HapOut hapOut;                      // Specialized output stream that can both print to serial monitor and encrypt/transmit to HAP Clients with minimal memory usage (global-scope)
 HAPClient **hap;                    // HAP Client structure containing HTTP client connections, parsing routines, and state variables (global-scoped variable)
 Span homeSpan;                      // HAP Attributes database and all related control functions for this Accessory (global-scoped variable)
@@ -101,10 +103,9 @@ void Span::begin(Category catID, const char *displayName, const char *hostNameBa
   delay(2000);
 
   LOG0("\n************************************************************\n"
-                 "Welcome to HomeSpan!\n"
-                 "Apple HomeKit for the Espressif ESP-32 WROOM and Arduino IDE\n"
+                 "Welcome to the Burbeon Parts Cleaner!\n"
                  "************************************************************\n\n"
-                 "** Please ensure serial monitor is set to transmit <newlines>\n\n");
+                 "** Please ensure your system is set to transmit <newlines>\n\n");
 
   LOG0("Message Logs:     Level %d",logLevel);
   LOG0("\nStatus LED:       Pin ");
@@ -1085,13 +1086,14 @@ void Span::processSerialCommand(const char *c){
     break;   
 
     case '?': {    
-      
-      LOG0("\n*** HomeSpan Commands ***\n\n");
+       LOG0("\n*** Status Commands ***\n\n");
       LOG0("  s - print connection status\n");
       LOG0("  i - print summary information about the HAP Database\n");
       LOG0("  d - print the full HAP Accessory Attributes Database in JSON format\n");
       LOG0("  m - print free heap memory\n");
       LOG0("\n");      
+      LOG0("\n*** Connectivity Commands ***\n\n");
+      
       LOG0("  W - configure WiFi Credentials and restart\n");      
       LOG0("  X - delete WiFi Credentials and restart\n");      
       LOG0("  S <code> - change the HomeKit Pairing Setup Code to <code>\n");
@@ -1099,13 +1101,18 @@ void Span::processSerialCommand(const char *c){
       LOG0("  O - change the OTA password\n");
       LOG0("  A - start the HomeSpan Setup Access Point\n");
       LOG0("\n");      
+      LOG0("\n*** Reset/Delete Commands ***\n\n");
       LOG0("  V - delete value settings for all saved Characteristics\n");
       LOG0("  U - unpair device by deleting all Controller data\n");
       LOG0("  H - delete HomeKit Device ID as well as all Controller data and restart\n");      
       LOG0("\n");      
+      LOG0("\n*** Migration Commands ***\n\n");
+      
       LOG0("  P - output Pairing Data that can be saved offline to clone a new device\n");      
       LOG0("  C - clone Pairing Data previously saved offline from another device\n");      
       LOG0("\n");      
+      LOG0("\n*** System Commands ***\n\n");
+      
       LOG0("  R - restart device\n");      
       LOG0("  F - factory reset and restart\n");      
       LOG0("  E - erase ALL stored data and restart\n");      
@@ -1113,12 +1120,22 @@ void Span::processSerialCommand(const char *c){
       LOG0("  L <level> - change the Log Level setting to <level>\n");
       LOG0("\n");
 
-      for(auto uCom=homeSpan.UserCommands.begin(); uCom!=homeSpan.UserCommands.end(); uCom++)      // loop over all UserCommands using an iterator
-        LOG0("  @%c %s\n",uCom->first,uCom->second->s);
-
-      if(!homeSpan.UserCommands.empty())
         LOG0("\n");
-        
+      
+        LOG0("\n*** Parts Cleaner Commands ***\n\n");
+        LOG0("@t - Enter Test Mode (Use command R to reset to exit)\n");
+        LOG0("@m <#> - Test Motors Relay - 1 turns motor relay on, 0 turns motor relay off\n");
+        LOG0("@f <#> - Test Fan Relay - 1 turns fan relay on, 0 turns fan relay off\n");
+        LOG0("@d <#> - Test Dryer Relay -  1 turns dryer relay on, 0 turns dryer relay off\n");
+        LOG0("@g <#> - Test Gantry - Move Gantry by this many steps: -ve is down, +ve is up WARNING: Does not check for crashes\n");
+        LOG0("@u <#> - Test Turntable - Rotate turntable by this many stepsWARNING: Does not check for crashes\n");
+        LOG0("@i <#>  - Sets this machine as machine # - must be unique per network\n");
+        LOG0("@e - Print the tEmperature and humidity in the case\n");
+        LOG0("@c - Clear Calibration Settings - WARNING - : This is immediate - no confirmation\n");
+        LOG0("@w - Writes out settings for this cleaner\n");
+        LOG0("@r <setting>=<#> - Update setting to value (Paste back in the output of the @w command)\n");
+        LOG0("\n");
+     
       LOG0("  ? - print this list of commands\n\n");     
       LOG0("*** End Commands ***\n\n");
     }

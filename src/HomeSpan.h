@@ -30,6 +30,7 @@
 #ifndef ARDUINO_ARCH_ESP32
 #error ERROR: HOMESPAN IS ONLY AVAILABLE FOR ESP32 MICROCONTROLLERS!
 #endif
+#define PARTS_CLEANER_HOMEKIT 1
 
 #pragma GCC diagnostic ignored "-Wpmf-conversions"                // eliminates warning messages from use of pointers to member functions to detect whether update() and loop() are overridden by user
 #pragma GCC diagnostic ignored "-Wunused-result"                  // eliminates warning message regarded unused result from call to crypto_scalarmult_curve25519()
